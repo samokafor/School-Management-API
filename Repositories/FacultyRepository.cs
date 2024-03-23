@@ -1,27 +1,40 @@
 ﻿namespace SchoolManagementAPI.Repositories;
 
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SchoolManagementAPI.Database;
 using SchoolManagementAPI.Database.Models;
+using SchoolManagementAPI.DTOs;
 using SchoolManagementAPI.Repositories.Interfaces;
-
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 public class FacultyRepository : IFacultyRepository
 {
     private readonly SchoolDbContext schoolDbContext;
+    private readonly IMapper mapper;
 
-    public FacultyRepository(SchoolDbContext schoolDbContext)
+    public FacultyRepository(SchoolDbContext schoolDbContext, IMapper mapper)
     {
         this.schoolDbContext = schoolDbContext;
+        this.mapper = mapper;
     }
-    public async Task<Faculty> AddFaculty(Faculty faculty)
+    public async Task<FacultyDto> AddFaculty(FacultyDto facultyDto)
     {
-        var result = await schoolDbContext.Faculties.AddAsync(faculty);
+        var newFaculty = new Faculty
+        {
+            Name = facultyDto.Name,
+            FacultyCode = facultyDto.FacultyCode.ToUpper()
+        };
+
+        var result = await schoolDbContext.Faculties.AddAsync(newFaculty);
         await schoolDbContext.SaveChangesAsync();
-        return result.Entity;
+
+        // Map the newly added Faculty entity to a FacultyDto before returning
+        return mapper.Map<FacultyDto>(result.Entity);
     }
+
+
 
     public async Task DeleteFaculty(int Id)
     {
@@ -30,8 +43,7 @@ public class FacultyRepository : IFacultyRepository
         if(result != null)
         {
             schoolDbContext.Faculties.Remove(result);
-            await schoolDbContext.SaveChangesAsync();
-            
+            await schoolDbContext.SaveChangesAsync();   
         }
         else
         {
@@ -39,32 +51,47 @@ public class FacultyRepository : IFacultyRepository
         }
     }
 
-    public async Task<IEnumerable<Faculty>> GetFaculties()
+    public async Task<IEnumerable<FacultyDto>> GetFaculties()
     {
-        return await schoolDbContext.Faculties.ToListAsync();
+        
+            var faculties= await schoolDbContext.Faculties
+                .Include(f => f.Departments)
+                .ToListAsync();
+        var facultyDTOs = mapper.Map<IEnumerable<FacultyDto>>(faculties);
+        return facultyDTOs;
     }
 
-    public async Task<Faculty> GetFacultyByID(int Id)
+    public async Task<FacultyDto> GetFacultyByID(int Id)
     {
-        var result = await schoolDbContext.Faculties.FirstOrDefaultAsync(f => f.Id == Id);
-        if (result != null)
+        var faculty = await schoolDbContext.Faculties
+            .Include(f => f.Departments)
+            .FirstOrDefaultAsync(f => f.Id == Id);
+
+        if (faculty != null)
         {
-            return result;
+            var facultyDTO = mapper.Map<FacultyDto>(faculty);
+            return facultyDTO;
         }
 
         return null;
     }
 
-    public async Task<Faculty> GetFacultyByName(string name)
+
+    public async Task<FacultyDto> GetFacultyByName(string name)
     {
-        var result = await schoolDbContext.Faculties.FirstOrDefaultAsync(f => f.Name == name);
-        if (result != null)
+        var faculty = await schoolDbContext.Faculties
+            .Include(f => f.Departments)
+            .FirstOrDefaultAsync(f => f.Name == name);
+
+        if (faculty != null)
         {
-            return result;
+            var facultyDTO = mapper.Map<FacultyDto>(faculty);
+            return facultyDTO;
         }
 
         return null;
     }
+
 
     public async Task<IEnumerable<Faculty>> Search(string searchString)
     {

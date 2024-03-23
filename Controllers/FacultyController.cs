@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SchoolManagementAPI.Database.Models;
+using SchoolManagementAPI.DTOs;
 using SchoolManagementAPI.Repositories.Interfaces;
 
 namespace SchoolManagementAPI.Controllers
@@ -42,11 +43,12 @@ namespace SchoolManagementAPI.Controllers
                 return Ok(result);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database.");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database. {ex}");
             }
         }
+
 
         [HttpGet("{Id:int}")]
         public async Task<ActionResult> GetFacultyById(int Id)
@@ -60,35 +62,38 @@ namespace SchoolManagementAPI.Controllers
                 }
                 return NotFound();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database.");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database. {ex}");
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateFaculty(Faculty faculty)
+        public async Task<ActionResult<FacultyDto>> CreateFaculty(FacultyDto facultyDto)
         {
             try
             {
-                if (faculty == null)
+                if (facultyDto == null)
                 {
                     return BadRequest();
                 }
-                var existingFaculty = await facultyRepository.GetFacultyByName(faculty.Name);
+
+                var existingFaculty = await facultyRepository.GetFacultyByName(facultyDto.Name);
                 if (existingFaculty != null)
                 {
                     ModelState.AddModelError("Name", "Faculty with that name is already in use");
                     return BadRequest(ModelState);
                 }
-                var newFaculty = await facultyRepository.AddFaculty(faculty);
+
+                var newFaculty = await facultyRepository.AddFaculty(facultyDto);
                 return CreatedAtAction(nameof(GetFacultyById), new { id = newFaculty.Id }, newFaculty);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database.");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database. {ex}");
             }
         }
+
 
         [HttpPut("{Id:int}")]
         public async Task<ActionResult> UpdateFaculty(int Id, Faculty faculty)
