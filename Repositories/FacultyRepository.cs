@@ -66,13 +66,13 @@ public class FacultyRepository : IFacultyRepository
         return null;
     }
 
-    public async Task<IEnumerable<Faculty>> Search(string name)
+    public async Task<IEnumerable<Faculty>> Search(string searchString)
     {
         IQueryable<Faculty> query = schoolDbContext.Faculties;
 
-        if (!string.IsNullOrEmpty(name))
+        if (!string.IsNullOrEmpty(searchString))
         {
-            query = query.Where(f => f.Name.Contains(name));
+            query = query.Where(f => f.Name.Contains(searchString)|| f.FacultyCode.Contains(searchString));
         }
         
         return await query.ToListAsync();
@@ -83,10 +83,11 @@ public class FacultyRepository : IFacultyRepository
         var result = await schoolDbContext.Faculties.FirstOrDefaultAsync(f => f.Id == faculty.Id);
         if(result != null)
         {
-            result.Name = faculty.FacultyCode;
+            result.Name = faculty.Name;
             result.FacultyCode = faculty.FacultyCode;
 
             schoolDbContext.Update(result);
+            await schoolDbContext.SaveChangesAsync();
             return result;
         }
 

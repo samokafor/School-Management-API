@@ -15,7 +15,7 @@ namespace SchoolManagementAPI.Controllers
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<FacultyController>>> Search(string name)
+        public async Task<ActionResult<IEnumerable<Faculty>>> Search(string name)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace SchoolManagementAPI.Controllers
             }
         }
 
-        [HttpGet("{id:int}")]
+        [HttpGet("{Id:int}")]
         public async Task<ActionResult> GetFacultyById(int Id)
         {
             try
@@ -90,10 +90,50 @@ namespace SchoolManagementAPI.Controllers
             }
         }
 
-        [HttpPut("{id:int}")]
+        [HttpPut("{Id:int}")]
         public async Task<ActionResult> UpdateFaculty(int Id, Faculty faculty)
         {
+            try
+            {
+                if (Id != faculty.Id)
+                {
+                    ModelState.AddModelError("Id", "Faculty Id mismatch!");
+                    return BadRequest(ModelState);
+                }
+                var result = await facultyRepository.GetFacultyByID(Id);
+                if (result == null)
+                {
+                    ModelState.AddModelError("Id", $"No faculty exists with the ID {Id}");
+                    return BadRequest(ModelState);
+                }
+                await facultyRepository.UpdateFaculty(faculty);
+                return Ok(faculty);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error updating faculty information.");
+            }
+        }
 
+        [HttpDelete("{Id:int}")]
+        public async Task<ActionResult> DeleteFaculty(int Id)
+        {
+            try
+            {
+                var result = await facultyRepository.GetFacultyByID(Id);
+                if (result == null)
+                {
+                    ModelState.AddModelError("Id", $"No faculty exists with the ID {Id}");
+                    return BadRequest(ModelState);
+                }
+                var name = result.Name;
+                await facultyRepository.DeleteFaculty(Id);
+                return Ok($"The {name} faculty has been deleted successfully!");
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error deleting faculty record.");
+            }
         }
 
 
