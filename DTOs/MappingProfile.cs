@@ -11,6 +11,7 @@ namespace SchoolManagementAPI.DTOs
         {
             CreateMap<Faculty, FacultyDto>();
             CreateMap<Department, DepartmentDto>();
+            CreateMap<Staff, StaffDto>();
             CreateMap<FacultyDto, Faculty>()
             .ForMember(dest => dest.Departments, opt => opt.Ignore()); // Ignore the department property
             CreateMap<Faculty, FacultyDto>();

@@ -27,10 +27,17 @@ namespace SchoolManagementAPI.Repositories
             {
                 throw new Exception($"No Faculty exists with ID {department.FacultyID}");
             }
+            var staff = await schoolDbContext.Staff.FirstOrDefaultAsync(d => d.Id == department.HeadOfDepartmentStaffId);
+            if (staff == null)
+            {
+                throw new Exception($"No staff with id {department.HeadOfDepartmentStaffId} exists!");
+            }
             var newDepartment = new Department
             {
                 Name = department.Name,
                 DepartmentCode = department.DepartmentCode.ToUpper(),
+                HeadOfDepartmentStaffId = department.HeadOfDepartmentStaffId,
+                HeadOfDepartment = $"{staff.Title} {staff.FirstName} {staff.MiddleName} {staff.LastName}",
                 FacultyId = department.FacultyID
             };
             var result = await schoolDbContext.Departments.AddAsync(newDepartment);

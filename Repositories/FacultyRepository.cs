@@ -21,10 +21,17 @@ public class FacultyRepository : IFacultyRepository
     }
     public async Task<FacultyDto> AddFaculty(FacultyDto facultyDto)
     {
+        var staff = await schoolDbContext.Staff.FirstOrDefaultAsync(s => s.Id == facultyDto.DeanStaffId);
+        if(staff == null)
+        {
+            throw new Exception($"No staff with id {facultyDto.DeanStaffId} exists!");
+        }
         var newFaculty = new Faculty
         {
             Name = facultyDto.Name,
-            FacultyCode = facultyDto.FacultyCode.ToUpper()
+            FacultyCode = facultyDto.FacultyCode.ToUpper(),
+            DeanStaffId = facultyDto.DeanStaffId,
+            FacultyDean = $"{staff.Title} {staff.FirstName} {staff.MiddleName} {staff.LastName}"
         };
 
         var result = await schoolDbContext.Faculties.AddAsync(newFaculty);
