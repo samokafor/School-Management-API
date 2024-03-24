@@ -93,16 +93,16 @@ public class FacultyRepository : IFacultyRepository
     }
 
 
-    public async Task<IEnumerable<Faculty>> Search(string searchString)
+    public async Task<IEnumerable<FacultyDto>> Search(string searchString)
     {
-        IQueryable<Faculty> query = schoolDbContext.Faculties;
+        IQueryable<Faculty> query = schoolDbContext.Faculties.Include(f => f.Departments);
 
         if (!string.IsNullOrEmpty(searchString))
         {
             query = query.Where(f => f.Name.Contains(searchString)|| f.FacultyCode.Contains(searchString));
         }
-        
-        return await query.ToListAsync();
+        var queryDto = mapper.Map<IEnumerable<FacultyDto>>(query);
+        return queryDto;
     }
 
     public async Task<Faculty> UpdateFaculty(Faculty faculty)

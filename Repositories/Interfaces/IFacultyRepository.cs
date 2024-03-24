@@ -1,12 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore.Update.Internal;
-using SchoolManagementAPI.Database.Models;
+﻿using SchoolManagementAPI.Database.Models;
 using SchoolManagementAPI.DTOs;
 
 namespace SchoolManagementAPI.Repositories.Interfaces
 {
     public interface IFacultyRepository
     {
-        Task<IEnumerable<Faculty>> Search(string name);
+        Task<IEnumerable<FacultyDto>> Search(string name);
         Task<IEnumerable<FacultyDto>> GetFaculties();
         Task<FacultyDto> GetFacultyByID(int Id);
         Task<FacultyDto> GetFacultyByName(string name);
