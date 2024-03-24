@@ -12,19 +12,25 @@ namespace SchoolManagementAPI.Repositories
     {
         private readonly SchoolDbContext schoolDbContext;
         private readonly IMapper mapper;
+        private readonly IFacultyRepository facultyRepository;
 
-        public DepartmentRepository(SchoolDbContext schoolDbContext, IMapper mapper)
+        public DepartmentRepository(SchoolDbContext schoolDbContext, IMapper mapper, IFacultyRepository facultyRepository)
         {
             this.schoolDbContext = schoolDbContext;
             this.mapper = mapper;
+            this.facultyRepository = facultyRepository;
         }
 
         public async Task<DepartmentDto> AddNewDepartmentAsync(DepartmentDto department)
         {
+            if (await facultyRepository.GetFacultyByID(department.FacultyID) == null )
+            {
+                throw new Exception($"No Faculty exists with ID {department.FacultyID}");
+            }
             var newDepartment = new Department
             {
                 Name = department.Name,
-                DepartmentCode = department.DepartmentCode,
+                DepartmentCode = department.DepartmentCode.ToUpper(),
                 FacultyId = department.FacultyID
             };
             var result = await schoolDbContext.Departments.AddAsync(newDepartment);
@@ -78,7 +84,7 @@ namespace SchoolManagementAPI.Repositories
             }
             else
             {
-                throw new Exception($"No department exists with the name {name}");
+                return null;
             }
         }
 
@@ -95,18 +101,18 @@ namespace SchoolManagementAPI.Repositories
             return  queryDto;
         }
 
-        public async Task<Department> UpdateDepartment(Department department)
+        public async Task<DepartmentDto> UpdateDepartment(DepartmentDto department)
         {
             var departmentToUpdate = await schoolDbContext.Departments.FirstOrDefaultAsync(d => d.Id == department.Id);
             if (departmentToUpdate != null)
             {
                 departmentToUpdate.Name = department.Name;
                 departmentToUpdate.DepartmentCode = department.DepartmentCode;
-                departmentToUpdate.FacultyId = department.FacultyId;
+                departmentToUpdate.FacultyId = department.FacultyID;
 
                 schoolDbContext.Update(departmentToUpdate);
                 await schoolDbContext.SaveChangesAsync();
-                return departmentToUpdate;
+                return mapper.Map<DepartmentDto>(departmentToUpdate);
             }
             return null;
         }
