@@ -22,10 +22,10 @@ public class FacultyRepository : IFacultyRepository
     public async Task<FacultyDto> AddFaculty(FacultyDto facultyDto)
     {
         var staff = await schoolDbContext.Staff.FirstOrDefaultAsync(s => s.Id == facultyDto.DeanStaffId);
-        if(staff == null)
+        /*if(staff == null)
         {
             throw new Exception($"No staff with id {facultyDto.DeanStaffId} exists!");
-        }
+        }*/
         var newFaculty = new Faculty
         {
             Name = facultyDto.Name,
@@ -64,6 +64,16 @@ public class FacultyRepository : IFacultyRepository
             var faculties= await schoolDbContext.Faculties
                 .Include(f => f.Departments)
                 .ToListAsync();
+        foreach (var faculty in faculties)
+        {
+            // Handle null Dean property
+            if (faculty.Dean == null)
+            {
+                faculty.DeanStaffId = 0;
+                faculty.FacultyDean = "Not Yet Appointed";
+            }
+            
+        }
         var facultyDTOs = mapper.Map<IEnumerable<FacultyDto>>(faculties);
         return facultyDTOs;
     }

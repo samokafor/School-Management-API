@@ -10,6 +10,7 @@ namespace SchoolManagementAPI.DTOs
         public string DepartmentCode { get; set; }
         public int HeadOfDepartmentStaffId { get; set; }
         public string HeadOfDepartment { get; set; }
+        //public Staff HOD {  get; set; }
         public List<Staff> StaffMembers { get; set; }
         public int FacultyID { get; set; }
     }

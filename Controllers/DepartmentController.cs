@@ -112,13 +112,28 @@ namespace SchoolManagementAPI.Controllers
                 {
                     return StatusCode(StatusCodes.Status302Found, $"Department with ID {Id} not found!");
                 }
+
+                if(department.HeadOfDepartmentStaffId != 0)
+                {
+                    try
+                    {
+                        await departmentRepository.CheckStaffInDepartmentAsync(department.HeadOfDepartmentStaffId, department);
+
+                    }
+                    catch (Exception ex)
+                    {
+                        ModelState.AddModelError("HodStaffID", ex.Message);
+                        return BadRequest(ModelState);
+                    }
+                }
                 await departmentRepository.UpdateDepartment(department);
-                return Ok(department);
+                var updateddepartment = departmentRepository.GetDepartmentByIdAsync(Id).Result;
+                return Ok(updateddepartment);
 
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error updating Department information.");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error updating Department information. {ex.Message}");
             }
         }
         [HttpDelete("{Id:int}")]
