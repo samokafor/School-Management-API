@@ -13,5 +13,6 @@ namespace SchoolManagementAPI.Repositories.Interfaces
         Task<DepartmentDto> AddNewDepartmentAsync(DepartmentDto department);
         Task<DepartmentDto> UpdateDepartment(DepartmentDto department);
         Task DeleteDepartmentAsync(int Id);
+        Task<bool> CheckStaffInDepartmentAsync(int Id, DepartmentDto department);
     }
 }

@@ -1,0 +1,14 @@
+
+.vs/SchoolManagementAPI/DesignTimeBuild/
+.vs/SchoolManagementAPI/FileContentIndex/
+.vs/SchoolManagementAPI/config/
+Migrations/
+Startup.cs
+WeatherForecast.cs
+appsettings.Development.json
+bin/
+jotter.txt
+obj/
+.vs/SchoolManagementAPI/v17/.suo
+.vs/SchoolManagementAPI/v17/DocumentLayout.json
+appsettings.json
