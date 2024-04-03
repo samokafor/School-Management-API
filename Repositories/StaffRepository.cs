@@ -24,7 +24,7 @@ namespace SchoolManagementAPI.Repositories
             {
                 Title = staff.Title,
                 FirstName = staff.FirstName,
-                MiddleName = staff.LastName,
+                MiddleName = staff.MiddleName,
                 LastName = staff.LastName,
                 Gender = staff.Gender,
                 DOB = staff.DOB,
@@ -39,9 +39,11 @@ namespace SchoolManagementAPI.Repositories
             return mapper.Map<StaffDto>(result.Entity);
         }
 
-        public Task DeleteStaffAsync(int Id)
+        public async Task DeleteStaffAsync(int Id)
         {
-            throw new NotImplementedException();
+            var staff = await schoolDbContext.Staff.FirstOrDefaultAsync(s => s.Id == Id);
+            if(staff == null) throw new Exception($"No Staff exists with ID {Id}");
+            schoolDbContext.Staff.Remove(staff);
         }
 
         public async Task<IEnumerable<StaffDto>> GetAllStaffAsync()
@@ -73,14 +75,43 @@ namespace SchoolManagementAPI.Repositories
             return staffDto;
         }
 
-        public Task<IEnumerable<StaffDto>> SearchAsync(string searchTerm)
+        public async Task<IEnumerable<StaffDto>> SearchAsync(string searchTerm)
         {
-            throw new NotImplementedException();
+            IQueryable<Staff> query = schoolDbContext.Staff;
+
+            if (!(string.IsNullOrEmpty(searchTerm)))
+            {
+                query = query.Where(s => s.FirstName.Contains(searchTerm) || s.MiddleName.Contains(searchTerm) || s.LastName.Contains(searchTerm));
+            }
+            var queryDto = mapper.Map<IEnumerable<StaffDto>>(query);
+            return queryDto;
         }
 
-        public Task<StaffDto> UpdateStaffAsync(StaffDto staff)
+        public async Task<StaffDto> UpdateStaffAsync(StaffDto staff)
         {
-            throw new NotImplementedException();
+            var staffToUpdate = await schoolDbContext.Staff.FirstOrDefaultAsync(s => s.Id == staff.Id);
+            if (staffToUpdate == null)
+            {
+                return null;
+                //throw new Exception($"The staff member with ID {staff.Id} does not exist!");
+            }
+            else
+            {
+
+                staffToUpdate.Title = staff.Title;
+                staffToUpdate.FirstName = staff.FirstName;
+                staffToUpdate.MiddleName = staff.MiddleName;
+                staffToUpdate.LastName = staff.LastName;
+                staffToUpdate.StaffGrade = staff.StaffGrade;
+                staffToUpdate.Email = staffToUpdate.Email;
+                staffToUpdate.DepartmentId = staffToUpdate.DepartmentId;
+                staffToUpdate.DOB = staffToUpdate.DOB;
+                staffToUpdate.Gender = staffToUpdate.Gender;
+
+                await schoolDbContext.SaveChangesAsync();
+                var staffDto = mapper.Map<StaffDto>(staffToUpdate);
+                return staffDto;
+            }
         }
     }
 }
