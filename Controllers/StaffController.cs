@@ -75,5 +75,49 @@ namespace SchoolManagementAPI.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"Error retrieving data from database. {ex.Message}");
             }
         }
+
+        [HttpPut("{Id:int}")]
+        public async Task<ActionResult<StaffDto>> UpdateStaff(int Id, StaffDto staff)
+        {
+            try
+            {
+                if (Id != staff.Id)
+                {
+                    ModelState.AddModelError("Id", "Staff Id mismatch"); return BadRequest(ModelState);
+                }
+                var staffToUpdate = await staffRepository.GetStaffByIDAsync(Id);
+
+                if (staff == null) return StatusCode(StatusCodes.Status302Found, $"Staff with ID {Id} not found");
+                await staffRepository.UpdateStaffAsync(staff);
+                var updatedStaff = await staffRepository.GetStaffByIDAsync(Id);
+                return Ok(updatedStaff);
+            }
+            catch (Exception ex)
+            { 
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error Updating informationn in the database. {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{Id:int}")]
+        public async Task<ActionResult> DeleteStaff(int Id)
+        {
+            try
+            {
+                var staffToDelete = await staffRepository.GetStaffByIDAsync(Id);
+                if (staffToDelete == null)
+                {
+                    ModelState.AddModelError("Id", $"No staff exists with ID {Id}");
+                    return BadRequest(ModelState);
+                }
+                await staffRepository.DeleteStaffAsync(Id);
+
+                return Ok($"{staffToDelete.FirstName} {staffToDelete.LastName}'s profile has been deleted successfully.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error Deleting data from database. {ex.Message}");
+            }
+
+        }
     }
 }
