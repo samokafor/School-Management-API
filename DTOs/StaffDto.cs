@@ -15,6 +15,6 @@ namespace SchoolManagementAPI.DTOs
         public string Email { get; set; }
         public string PhoneNumber { get; set; }
         public StaffGrades StaffGrade { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
     }
 }

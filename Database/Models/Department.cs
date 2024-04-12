@@ -14,6 +14,7 @@ namespace SchoolManagementAPI.Database.Models
         [ForeignKey("HeadOfDepartmentStaffId")]
         public Staff? HOD { get; set; }
         public List<Staff> StaffMembers { get; set; }
+        public List<Course> Courses { get; set; }
         public int? FacultyId { get; set; }
         public Faculty? Faculty { get; set; }
     }

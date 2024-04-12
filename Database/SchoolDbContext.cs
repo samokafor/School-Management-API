@@ -10,6 +10,7 @@ namespace SchoolManagementAPI.Database
         public DbSet<Faculty> Faculties { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Staff> Staff { get; set; }
+        public DbSet<Course> Courses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -48,6 +49,11 @@ namespace SchoolManagementAPI.Database
                 .HasConversion(
                 v => v.ToString(),
                     v => (StaffGrades)Enum.Parse(typeof(StaffGrades), v));
+
+            modelBuilder.Entity<Course>()
+                .HasOne(c => c.Department)
+                .WithMany(d => d.Courses)
+                .HasForeignKey(c => c.DepartmentId);
         }
     }
 }
